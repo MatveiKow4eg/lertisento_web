@@ -1,32 +1,60 @@
-// Basic client-side form handling with accessibility-friendly status messages
+// Contact form submission + scroll-to-top button
 (function () {
   const form = document.getElementById('contactForm');
   const status = document.getElementById('formStatus');
-  if (!form) return;
 
   function setStatus(msg, ok) {
+    if (!status) return;
     status.textContent = msg;
     status.style.color = ok ? '#10B981' : '#6B7280';
   }
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const data = new FormData(form);
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-    // Simple validation
-    if (!data.get('name') || !data.get('email') || !data.get('message') || !data.get('gdpr')) {
-      setStatus('Please fill in required fields and accept GDPR.', false);
-      return;
-    }
+      const fd = new FormData(form);
+      const payload = {
+        name: String(fd.get('name') || '').trim(),
+        email: String(fd.get('email') || '').trim(),
+        phone: String(fd.get('phone') || '').trim(),
+        message: String(fd.get('message') || '').trim(),
+        gdpr: Boolean(fd.get('gdpr')),
+        // honeypot (should be empty)
+        company: String(fd.get('company') || '').trim(),
+      };
 
-    // Simulate async submission
-    setStatus('Sending…', false);
-    setTimeout(() => {
-      setStatus('Thank you! We will get back to you within 24 hours.', true);
-      form.reset();
-    }, 900);
-  });
-// Scroll-to-top button
+      // Basic client-side validation
+      if (!payload.name || !payload.email || !payload.message || !payload.gdpr) {
+        setStatus('Please fill in required fields and accept GDPR.', false);
+        return;
+      }
+
+      setStatus('Sending…', false);
+
+      try {
+        const resp = await fetch('/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (!resp.ok || !data.ok) {
+          setStatus(data.error || 'Failed to send. Please try again later.', false);
+          return;
+        }
+
+        setStatus('Thank you! We will get back to you within 24 hours.', true);
+        form.reset();
+      } catch (err) {
+        setStatus('Network error. Please try again later.', false);
+      }
+    });
+  }
+
+  // Scroll-to-top button
   const toTopBtn = document.querySelector('.to-top');
   if (toTopBtn) {
     const SHOW_AFTER_PX = 200;

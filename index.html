@@ -163,6 +163,12 @@
               <span>Phone</span>
               <input type="tel" name="phone" autocomplete="tel" />
             </label>
+            <!-- Honeypot field (anti-spam). Hidden via CSS; should stay empty. -->
+            <label class="field hp-field" aria-hidden="true">
+              <span>Company</span>
+              <input type="text" name="company" tabindex="-1" autocomplete="off" />
+            </label>
+
             <label class="field">
               <span>Message</span>
               <textarea name="message" rows="4" required></textarea>

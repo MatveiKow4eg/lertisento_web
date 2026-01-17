@@ -453,6 +453,16 @@ input:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset:
 .actions { margin-top: 12px; }
 .form-status { margin-top: 12px; color: var(--text-muted); }
 
+/* Honeypot field: keep in DOM for bots, invisible for humans */
+.hp-field {
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
 /* Social links (contact sidebar) */
 .t-sociallinks__wrapper{
   list-style: none;
