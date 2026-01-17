@@ -1,4 +1,4 @@
-// Contact form submission + scroll-to-top button
+// Contact form submission (Vercel Serverless Function) + scroll-to-top button
 (function () {
   const form = document.getElementById('contactForm');
   const status = document.getElementById('formStatus');
@@ -33,7 +33,7 @@
       setStatus('Sending…', false);
 
       try {
-        const resp = await fetch('/contact', {
+        const resp = await fetch('/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
