@@ -7,9 +7,28 @@ function isEmail(value) {
 }
 
 function sanitize(value, maxLen) {
+  // Normalization + length limit. This is NOT an HTML sanitizer by itself.
   if (typeof value !== 'string') return '';
   const v = value.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   return v.trim().slice(0, maxLen);
+}
+
+function stripCRLF(value) {
+  // Prevent header injection in email headers (Subject/Reply-To/etc.)
+  if (typeof value !== 'string') return '';
+  return value.replace(/[\r\n]+/g, ' ').trim();
+}
+
+function escapeText(value) {
+  // Defensive encoding in case any value ends up being displayed in HTML later
+  // (e.g. admin panel, logs UI). Keeps the email itself plain-text.
+  if (typeof value !== 'string') return '';
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function json(res, status, body) {
@@ -111,10 +130,19 @@ module.exports = async function handler(req, res) {
       return json(res, 200, { ok: true });
     }
 
+    // Sanitize and normalize user input
     const name = sanitize(body.name, 120);
     const email = sanitize(body.email, 180);
     const phone = sanitize(body.phone, 60);
     const message = sanitize(body.message, 4000);
+
+    // Extra hardening against XSS/header-injection vectors:
+    // - remove CR/LF from values that go into email headers
+    // - escape text defensively (plain text email remains readable)
+    const safeName = escapeText(stripCRLF(name));
+    const safeEmail = stripCRLF(email);
+    const safePhone = escapeText(stripCRLF(phone));
+    const safeMessage = escapeText(message);
     const gdpr = body.gdpr === true;
 
     requireField(name.length >= 2, 'Name is required');
@@ -124,21 +152,36 @@ module.exports = async function handler(req, res) {
 
     const transporter = createTransporter();
 
-    const subject = `Contact form: ${name}`;
+    const subject = `Заявка с сайта Lertisento — ${safeName}`;
+
     const text =
-      `New message from contact form\n\n` +
-      `Name: ${name}\n` +
-      `Email: ${email}\n` +
-      (phone ? `Phone: ${phone}\n` : '') +
-      `IP: ${getIP(req)}\n` +
-      `\nMessage:\n${message}\n`;
+      `Новая заявка с сайта Lertisento\n\n` +
+      `Имя: ${safeName}\n` +
+      `Email: ${safeEmail}\n` +
+      (safePhone ? `Телефон: ${safePhone}\n` : '') +
+      `IP: ${getIP(req)}\n\n` +
+      `Сообщение:\n${safeMessage}\n`;
+
+    const html =
+      `<h2>Новая заявка с сайта Lertisento</h2>` +
+      `<p><b>Имя:</b> ${safeName}</p>` +
+      `<p><b>Email:</b> <a href="mailto:${safeEmail}">${safeEmail}</a></p>` +
+      (safePhone ? `<p><b>Телефон:</b> ${safePhone}</p>` : '') +
+      `<p><b>IP:</b> ${escapeText(getIP(req))}</p>` +
+      `<hr/>` +
+      `<pre style="white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">${safeMessage}</pre>`;
 
     await transporter.sendMail({
       from: MAIL_FROM,
       to: MAIL_TO,
       subject,
       text,
-      replyTo: email,
+      html,
+      replyTo: safeEmail,
+      headers: {
+        'X-Form-Name': 'Lertisento Contact',
+        'X-Message-Type': 'lead',
+      },
     });
 
     return json(res, 200, { ok: true });
