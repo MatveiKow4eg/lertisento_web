@@ -29,7 +29,7 @@ body {
   line-height: 1.6;
 }
 img { max-width: 100%; display: block; }
-.container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 20px; }
+.container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 
 /* Header */
 .site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(12px); border-bottom: 1px solid #e5e7eb; }
