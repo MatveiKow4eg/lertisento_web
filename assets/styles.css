@@ -132,10 +132,28 @@ img { max-width: 100%; display: block; }
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
+  /* don't use space-between: it forces all flex-items apart and prevents
+     "country selector" from sitting next to social links */
+  justify-content: flex-start;
+  padding: 16px 0; /* container already has 0 20px padding; avoid doubling */
   color: #FFFFFF;
   height: 64px;
+  width: 100%;
+}
+
+/* Right side (country selector + social) */
+.hero-right {
+  margin-left: auto;  /* pushes the whole right block to the far right */
+  display: flex;
+  align-items: center;
+  gap: 12px;          /* spacing BETWEEN languages and social icons */
+  pointer-events: auto;
+}
+
+.hero-right .hero-menu[aria-label="Country selector"] {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
 }
 .hero-menu {
   display: flex;
@@ -143,6 +161,12 @@ img { max-width: 100%; display: block; }
   justify-content: flex-start;
   align-items: center;
   pointer-events: auto;
+}
+
+/* Primary menu */
+.hero-menu[aria-label="Primary"] {
+  display: flex;
+  gap: 24px;
 }
 .hero-menu a { color: #FFFFFF; text-decoration: none; font-weight: 600; letter-spacing: 0.01em; opacity: 0.96; }
 .hero-menu a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
@@ -166,7 +190,7 @@ img { max-width: 100%; display: block; }
 
 .hero-social {
   display: flex;
-  gap: 16px;
+  gap: 8px;
   justify-content: flex-end;
   align-items: center;
   color: #FFFFFF;
@@ -176,10 +200,9 @@ img { max-width: 100%; display: block; }
 .hero-social a { color: inherit; display: inline-flex; }
 .hero-social a:hover { color: #fff; }
 
-/* Align country selector to the right next to hero-social */
+/* Country selector positioning is handled by .hero-right */
 nav[aria-label="Country selector"] {
-  margin-left: auto;
-  margin-right: 16px; /* slight left shift to look balanced next to social icons */
+  margin: 0;
 }
 
 /* Scroll indicator */
