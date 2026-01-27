@@ -105,6 +105,19 @@ img { max-width: 100%; display: block; }
   gap: 18px;
 }
 .hero h1 { margin: 0 0 24px; font-size: clamp(42px, 6vw, 68px); line-height: 1.25; color: #FFFFFF; font-weight: 700; max-width: 880px; margin-left: auto; margin-right: auto; }
+
+/* Hero H1 inside hero-content (used on main page) */
+.hero-content h1,
+.hero-content__title {
+  margin: 0 0 24px;
+  font-size: clamp(34px, 6vw, 68px);
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-weight: 700;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .hero p { margin: 0 0 28px; font-size: clamp(16px, 2.3vw, 18px); color: rgba(255,255,255,0.9); }
 
 /* Hero top navigation inside hero */
@@ -162,6 +175,12 @@ img { max-width: 100%; display: block; }
 }
 .hero-social a { color: inherit; display: inline-flex; }
 .hero-social a:hover { color: #fff; }
+
+/* Align country selector to the right next to hero-social */
+nav[aria-label="Country selector"] {
+  margin-left: auto;
+  margin-right: 16px; /* slight left shift to look balanced next to social icons */
+}
 
 /* Scroll indicator */
 .scroll-indicator {
@@ -405,6 +424,82 @@ max-width: 520px;
   }
 }
 
+/* FAQ */
+.section-faq {
+  background: var(--bg-soft);
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}
+.section-faq .section-head { margin-bottom: 26px; }
+.section-faq .section-head h2 { font-size: 34px; font-weight: 800; }
+.section-faq .section-head .muted { max-width: 64ch; margin: 0 auto; }
+
+.faq {
+  max-width: 920px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+}
+
+.faq details {
+  background: rgba(255,255,255,0.78);
+  border: 1px solid rgba(17, 24, 39, 0.10);
+  border-radius: 14px;
+  overflow: clip;
+  box-shadow: none;
+}
+
+.faq details:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(17, 24, 39, 0.10);
+}
+
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 18px;
+  font-weight: 800;
+  color: var(--text-strong);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.faq summary::-webkit-details-marker { display: none; }
+
+.faq summary::after {
+  content: "";
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.22);
+  background-image:
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor);
+  background-size: 12px 2px, 2px 12px;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  color: var(--primary);
+}
+
+.faq details[open] summary::after {
+  transform: rotate(45deg);
+  background-color: rgba(217, 119, 6, 0.16);
+}
+
+.faq details > div,
+.faq details > p {
+  padding: 0 18px 16px;
+  margin: 0;
+  color: var(--text);
+  line-height: 1.75;
+}
+
+/* no animations in FAQ */
+
 /* Contact */
 .section-contact {
   background: var(--bg-soft);
@@ -556,15 +651,96 @@ input:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset:
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .about-grid { grid-template-columns: 1fr; }
 }
+
+/* Mobile: show country selector between logo and H1 */
 @media (max-width: 640px) {
   .header-inner { gap: 12px; }
   .nav { display: none; }
   .cards { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
   .hero { min-height: 100vh; }
-  .hero-top-inner { height: 56px; padding: 12px 16px; }
-  .hero-menu { display: none; }
+
+  /* Make top bar non-fixed-height so it doesn't overlap hero-content */
+  .hero-top-inner { height: auto; padding: 12px 16px; }
+
+  /* Hide primary menu + social icons on mobile */
+  .hero-top-inner > .hero-menu[aria-label="Primary"],
   .hero-social { display: none; }
-  .logo-svg { height: 200px; }
+
+  /* Place country selector under the logo and above H1 */
+  nav[aria-label="Country selector"] {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    left: 50%;
+    top: 220px;
+    transform: translateX(-50%);
+    z-index: 5;
+
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+
+    white-space: nowrap;
+    font-size: 26px;
+  }
+
+  /* Prevent overlap on very small screens by pushing hero headline down */
+  .hero-content {
+    /* minimal offset; headline stays centered but won't collide with selector */
+    padding-top: 20px;
+  }
+
+  /* Extra safety only for very small phones (iPhone SE-like) */
+  @media (max-width: 375px) {
+    /* Hide hero logo on very small screens (iPhone SE) */
+    .hero-brand { display: none; }
+
+    /* Put selector in normal flow to prevent overlap */
+    nav[aria-label="Country selector"] {
+      position: static;
+      transform: none;
+      margin: 10px auto 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 8px;
+
+      /* Slightly smaller so it fits comfortably */
+      font-size: 22px;
+    }
+
+    nav[aria-label="Country selector"] a {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 6px 10px;
+    }
+
+    /* Reduce top padding since selector now takes space in flow */
+    .hero-content { padding-top: 12px; }
+
+    /* Keep H1 readable and avoid extra wrapping */
+    .hero-content h1 {
+      font-size: 30px;
+      line-height: 1.12;
+      margin-bottom: 12px;
+      max-width: 20ch;
+    }
+  }
+
+  nav[aria-label="Country selector"] a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    min-height: 60px;
+    padding: 10px 14px;
+  }
+
+  .logo-svg { height: 160px; }
   .tagline { font-size: 12px; }
 }

@@ -4,6 +4,8 @@
 // Contact form email sending is implemented as a Vercel Serverless Function:
 //   /api/contact
 //
+// Redirect /lt -> /lt/ etc is handled by Vercel via vercel.json (trailingSlash: true).
+//
 // This file is kept intentionally as a placeholder to avoid confusion if you previously
 // used an Express server locally.
 //
