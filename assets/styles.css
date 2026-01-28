@@ -699,9 +699,10 @@ input:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset:
 
     position: absolute;
     left: 50%;
-    top: 220px;
+    /* Allow moving higher on short viewports too */
+    top: clamp(120px, 18vh, 240px);
     transform: translateX(-50%);
-    z-index: 5;
+    z-index: 3;
 
     margin: 0;
     padding: 0;
